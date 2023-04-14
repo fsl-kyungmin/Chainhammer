@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 # from __future__ import print_function
 
-"""
-@summary: Timing transactions that are getting into the chain
 
-@version: v24 (4/September/2018)
-@since:   17/April/2018
-@organization: electron.org.uk
-@author:  https://github.com/drandreaskrueger
-@see: https://gitlab.com/electronDLT/chainhammer for updates
-"""
 
 
 import time, timeit, sys, os

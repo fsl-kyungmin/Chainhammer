@@ -1,19 +1,7 @@
 #!/usr/bin/env python3
-"""
-@summary: submit many contract.set(arg) transactions to the example contract
-
-@version: v32 (19/September/2018)
-@since:   17/April/2018
-@organization: electron.org.uk
-@author:  https://github.com/drandreaskrueger
-@see: https://gitlab.com/electronDLT/chainhammer for updates
-"""
-
 
 from config import RPCaddress, ROUTE, PRIVATE_FOR, ABI
 
-################
-## Dependencies:
 
 import sys, time, random
 from threading import Thread
@@ -151,15 +139,7 @@ def test_argument_encoding():
 
 
 def contract_set_via_RPC(contract, arg, privateFor=PRIVATE_FOR, gas=90000):
-    """
-    call the .set(arg) method 
-    not going through web3
-    but directly via RPC
-    
-    suggestion by @jpmsam 
-    https://github.com/jpmorganchase/quorum/issues/346#issuecomment-382216968
-    """
-    
+
     method_ID = contract_method_ID("set", contract.abi)
     data = argument_encoding(method_ID, arg)
     txParameters = {'from': w3.eth.defaultAccount, 
@@ -176,7 +156,6 @@ def contract_set_via_RPC(contract, arg, privateFor=PRIVATE_FOR, gas=90000):
                "id"     : 1}
     headers = {'Content-type' : 'application/json'}
     response = requests.post(RPCaddress, json=payload, headers=headers)
-    # print('raw json response: {}'.format(response.json()))
     tx = response.json()['result']
         
     print ("[sent directly via RPC]", end=" ")
@@ -214,10 +193,6 @@ contract_set = contract_set_via_web3   if ROUTE=="web3" else contract_set_via_RP
 
 
 def many_transactions(contract, numTx):
-    """
-    naive approach, blocking --> 15 TPS
-    """
-    
     print ("send %d transactions, non-async, one after the other:\n" % (numTx))
 
     for i in range(numTx):
@@ -226,10 +201,6 @@ def many_transactions(contract, numTx):
 
 
 def many_transactions_threaded(contract, numTx):
-    """
-    submit many transactions multi-threaded.
-    """
-
     print ("send %d transactions, multi-threaded, one thread per tx:\n" % (numTx))
 
     threads = []
@@ -252,11 +223,6 @@ def many_transactions_threaded(contract, numTx):
     
 
 def many_transactions_threaded_Queue(contract, numTx, num_worker_threads=100):
-    """
-    submit many transactions multi-threaded, 
-    with size limited threading Queue
-    """
-
     print ("send %d transactions, via multi-threading queue with %d workers:\n" % (numTx, num_worker_threads))
 
     q = Queue()
@@ -285,11 +251,6 @@ def many_transactions_threaded_Queue(contract, numTx, num_worker_threads=100):
 
 
 def many_transactions_threaded_in_batches(contract, numTx, batchSize=25):
-    """
-    submit many transactions multi-threaded;
-    But in batches of rather small numbers.
-    Does not give an advantage --> OBSOLETE, probably. 
-    """
 
     print ("send %d transactions, multi-threaded, one thread per tx, in batches of %d parallel threads:\n" % (numTx, batchSize))
     howManyLeft=numTx
@@ -317,21 +278,12 @@ def many_transactions_threaded_in_batches(contract, numTx, batchSize=25):
         howManyLeft -= batchSize
 
 
-###########################################################
-###
-### choose, depending on CLI parameter
-###
-###########################################################
-
 def benchmark(numTransactions = NUMBER_OF_TRANSACTIONS):
-
     print("\nBlockNumber = ", w3.eth.blockNumber)
     
     if len(sys.argv)>1:
         if sys.argv[1]=="threaded1":
             many_transactions_threaded(contract, numTransactions)
-            
-            
         elif sys.argv[1]=="threaded2":
             num_workers = 100
             if len(sys.argv)>2:
@@ -349,7 +301,7 @@ def benchmark(numTransactions = NUMBER_OF_TRANSACTIONS):
             many_transactions_threaded_in_batches(contract, 
                                                   numTx=numTransactions, 
                                                   batchSize=batchSize)
-          
+
         else:
             print ("Nope. Choice '%s'" % sys.argv[1], "not recognized.")
     else:
@@ -365,18 +317,6 @@ if __name__ == '__main__':
     NODENAME, NODETYPE, CONSENSUS, NETWORKID, CHAINNAME, CHAINID = chainInfos
 
     w3.eth.defaultAccount = w3.eth.accounts[0] # set first account as sender
-    # test_argument_encoding(); exit()
-    
-    # obsolete because we now always first deploy our own contract:
-    # if RAFT:
-    #    contract = initialize_fromBlock()
-    #else:
-    #    contract = initialize_fromAddress()
-    
     contract = initialize_fromAddress()
-        
-    # test_contract_set_via_web3(contract); exit()
-    # test_contract_set_via_RPC(contract);  exit()
-
     benchmark()
 
