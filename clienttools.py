@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""
-@summary: tools to talk to an Ethereum client node 
 
-@version: v32 (19/September/2018)
-@since:   19/June/2018
-@organization: electron.org.uk
-@author:  https://github.com/drandreaskrueger
-@see: https://gitlab.com/electronDLT/chainhammer for updates
-"""
 
 
 ################

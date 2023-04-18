@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""
-@summary: deploy contract
 
-@version: v32 (19/September/2018)
-@since:   2/May/2018
-@organization: electron.org.uk
-@author:  https://github.com/drandreaskrueger
-@see: https://gitlab.com/electronDLT/chainhammer for updates
-"""
 
 
 ################
@@ -31,17 +23,9 @@ from config import PRIVATE_FOR, PASSPHRASE_FILE, PARITY_UNLOCK_EACH_TRANSACTION
 from clienttools import web3connection, unlockAccount
 
 
-###############################################################################
-## deploy example from
-## http://web3py.readthedocs.io/en/latest/examples.html#working-with-contracts
-## when 'latest' was 4.2.0
-###############################################################################
 
 
 def compileContract(contract_source_file):
-    """
-    Reads file, compiles, returns contract name and interface
-    """
     with open(contract_source_file, "r") as f:
         contract_source_code = f.read()
     compiled_sol = compile_source(contract_source_code) # Compiled source code
@@ -52,9 +36,6 @@ def compileContract(contract_source_file):
 
 
 def deployContract(contract_interface, ifPrint=True):
-    """
-    deploys contract, waits for receipt, returns address
-    """
     myContract = w3.eth.contract(abi=contract_interface['abi'], 
                                  bytecode=contract_interface['bin'])
     tx_hash = w3.toHex( myContract.constructor().transact() )
@@ -65,14 +46,8 @@ def deployContract(contract_interface, ifPrint=True):
         print ( "Deployed. gasUsed={gasUsed} contractAddress={contractAddress}".format(**tx_receipt) )
     return contractAddress 
 
-    
 def contractObject(contractAddress, abi):
-    """
-    recreates myContract object when given address on chain, and ABI
-    """
-    # Create the contract instance with the newly-deployed address
-    myContract = w3.eth.contract(address=contractAddress,
-                                 abi=abi)
+    myContract = w3.eth.contract(address=contractAddress,abi=abi)
     return myContract
     
 
@@ -81,26 +56,17 @@ def contractObject(contractAddress, abi):
 ##########################
 
 def saveToDisk(contractAddress, abi):
-    """
-    save address & abi, for usage in the other script
-    """
     json.dump({"address": contractAddress}, open(CONTRACT_ADDRESS, 'w'))
     json.dump(abi, open(CONTRACT_ABI, 'w'))
 
 
 def loadFromDisk():
-    """
-    load address & abi from previous run of 'deployTheContract'
-    """
     contractAddress = json.load(open(CONTRACT_ADDRESS, 'r'))
     abi = json.load(open(CONTRACT_ABI, 'r'))
     return contractAddress["address"], abi
 
 
 def deployTheContract(contract_source_file):
-    """
-    compile, deploy, save
-    """
     contractName, contract_interface = compileContract(contract_source_file)
     print ("unlock: ", unlockAccount())
     contractAddress = deployContract(contract_interface)
@@ -109,10 +75,6 @@ def deployTheContract(contract_source_file):
 
 
 def testMethods(myContract):
-    """
-    just a test if the contract's methods are working
-    --> call getter then setter then getter  
-    """
     answer = myContract.functions.get().call()
     print('.get(): {}'.format(answer))
     
@@ -134,15 +96,13 @@ def testMethods(myContract):
 
 
 if __name__ == '__main__':
-
     global w3, NODENAME, NODETYPE, CONSENSUS, NETWORKID, CHAINNAME, CHAINID
     w3, chainInfos = web3connection(RPCaddress=RPCaddress, account=None)
     NODENAME, NODETYPE, CONSENSUS, NETWORKID, CHAINNAME, CHAINID = chainInfos
-
     deployTheContract(contract_source_file=CONTRACT_SOURCE)
     
     if len(sys.argv)>1 and sys.argv[1]=="notest":
-        exit() # argument "notest" allows to skip the .set() test transaction 
+        exit()
         
     contractAddress, abi = loadFromDisk()
     myContract = contractObject(contractAddress, abi)

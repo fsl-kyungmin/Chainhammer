@@ -26,12 +26,6 @@ from clienttools import web3connection, unlockAccount
 
 
 def initialize_fromBlock(contractTx_blockNumber=1, contractTx_transactionIndex=0):
-    """
-    use example contract from 7 nodes example
-    if called without arguments, it assumes that the very first transaction was done by
-    ./runscript.sh script1.js
-    (only works with raft consensus)
-    """
     abi = ABI
     print ("Getting the address of the example contract that was deployed")
     block = w3.eth.getBlock(contractTx_blockNumber)
@@ -49,9 +43,6 @@ def initialize_fromBlock(contractTx_blockNumber=1, contractTx_transactionIndex=0
 
 
 def initialize_fromAddress():
-    """
-    initialize contract object from address
-    """
     contractAddress, abi = loadFromDisk()
     myContract = w3.eth.contract(address=contractAddress,
                                  abi=abi)
@@ -59,10 +50,6 @@ def initialize_fromAddress():
     
 
 def contract_set_via_web3(contract, arg, privateFor=PRIVATE_FOR, gas=90000):
-    """
-    call the .set(arg) method, possibly with 'privateFor' tx-property
-    using the web3 method 
-    """
     txParameters = {'from': w3.eth.defaultAccount,
                     'gas' : gas}
     if privateFor:
@@ -82,26 +69,15 @@ def contract_set_via_web3(contract, arg, privateFor=PRIVATE_FOR, gas=90000):
 
 
 def test_contract_set_via_web3(contract):
-    """
-    test the above
-    """
     tx = contract_set_via_web3(contract, arg=2)
     print (tx)
     storedData = contract.functions.get().call()
     print (storedData) 
 
 
-## Manually build & submit transaction, i.e. not going though web3
-## (the hope of @jpmsam was that this would speed it up) 
-## 
-## Later I realized that data compilation steps are already implemented as
-## myContract.functions.myMethod(*args, **kwargs).buildTransaction(transaction)
 
 
 def contract_method_ID(methodname, abi):
-    """
-    build the 4 byte ID, from abi & methodname
-    """
     method_abi = filter_by_name(methodname, abi)
     assert(len(method_abi)==1)
     method_abi = method_abi[0]
@@ -113,9 +89,6 @@ def contract_method_ID(methodname, abi):
 
 
 def argument_encoding(contract_method_ID, arg):
-    """
-    concatenate method ID + padded parameter
-    """
     arg_hex = w3.toHex(arg)
     arg_hex_padded = pad_hex ( arg_hex, bit_size=256)
     data = contract_method_ID + arg_hex_padded [2:]
@@ -123,10 +96,6 @@ def argument_encoding(contract_method_ID, arg):
     
     
 def test_argument_encoding():
-    """
-    test the above:
-    'Doing that 10000 times ... took 0.45 seconds'
-    """
     timer = time.clock()
     reps = 10000
     for i in range(reps):
@@ -134,7 +103,6 @@ def test_argument_encoding():
         data = argument_encoding(method_ID, 7)
     timer = time.clock() - timer
     print (data)
-    # no need to precalculate, it takes near to no time:
     print ("Doing that %d times ... took %.2f seconds" % (reps, timer) )
 
 
@@ -163,9 +131,6 @@ def contract_set_via_RPC(contract, arg, privateFor=PRIVATE_FOR, gas=90000):
 
 
 def test_contract_set_via_RPC(contract, steps=3):
-    """
-    test the above, write 3 transactions, and check the storedData
-    """
     rand = random.randint(1, 100)
     for number in range(rand, rand+steps):
         tx = contract_set_via_RPC(contract, number)
@@ -174,22 +139,8 @@ def test_contract_set_via_RPC(contract, steps=3):
         storedData = contract.functions.get().call()
         print (storedData) 
     
-    
-    
-# CHOOSE which route to choose (web3 / RPC) depending on constant ROUTE
+
 contract_set = contract_set_via_web3   if ROUTE=="web3" else contract_set_via_RPC
-
-
-################################################################
-### 
-### benchmarking routines 
-###
-### 0 blocking
-### 1 async 
-### 2 async, queue, can give number of workers
-### 3 async, batched (obsolete)
-###
-################################################################
 
 
 def many_transactions(contract, numTx):

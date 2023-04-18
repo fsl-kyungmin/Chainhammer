@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""
-@summary: settings
 
-@version: v33 (19/September/2018)
-@since:   8/May/2018
-@organization: electron.org.uk
-@author:  https://github.com/drandreaskrueger
-@see: https://gitlab.com/electronDLT/chainhammer for updates
-"""
 
 ##########
 # Choices:
@@ -36,10 +28,7 @@ NUMBER_OF_TRANSACTIONS = 20000
 
 ## submit transaction via web3 or directly via RPC
 ROUTE = "RPC"  # "web3" "RPC"
-  
-# parity's idiosyncracy:
-# 'Time-unlocking is only supported in --geth compatibility mode.'
-# see https://gitlab.com/electronDLT/chainhammer/blob/master/parity.md#run-14 for why and how
+
 PARITY_UNLOCK_EACH_TRANSACTION=False
 
 if PARITY_UNLOCK_EACH_TRANSACTION and ROUTE=="RPC":

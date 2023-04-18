@@ -1,18 +1,5 @@
 #!/usr/bin/env python3
-"""
-@summary: Which client type do we have? 
-          quorum-raft/ibft OR energyweb OR parity OR geth OR ...
 
-@version: v32 (19/September/2018)
-@since:   29/May/2018
-@organization: electron.org.uk
-@author:  https://github.com/drandreaskrueger
-@see: https://gitlab.com/electronDLT/chainhammer for updates
-"""
-
-
-################
-## Dependencies:
 
 import json
 from pprint import pprint
@@ -28,9 +15,6 @@ from config import RPCaddress
 
 
 def start_web3connection(RPCaddress=None):
-    """
-    get a web3 object.
-    """
     w3 = Web3(HTTPProvider(RPCaddress, request_kwargs={'timeout': 120}))
     print ("web3 connection established, blockNumber =", w3.eth.blockNumber, end=", ")
     print ("node version string = ", w3.version.node)
